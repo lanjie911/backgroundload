@@ -26,6 +26,7 @@ public class FOFacade {
     public String sayHi(@RequestParam(name = "greeting") String greeting) {
         System.out.println("enter greeting...");
         service.doService();
+        service.doJDBCDemo();
         return "hi ".concat(greeting);
     }
 }
