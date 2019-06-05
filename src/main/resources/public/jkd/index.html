@@ -88,9 +88,23 @@ function getcode() {
 
     var tmStamp = new Date().getTime();
 
-    var resp = $.ajax({ url: "/sendSMS?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&tm="+tmStamp, async: false, dataType: "json", type: "GET" });
-
-    alert(resp.text);
+    $.ajax({
+        url: "/sendSMS?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&tm="+tmStamp,
+        dataType: "json",
+        type: "GET",
+        success: function(data){
+            layer.open({
+                content: data.text,
+                btn: '确定'
+            });
+        },
+        error: function(){
+            layer.open({
+                content: '未知错误！',
+                btn: '确定'
+            });
+        }
+    });
 
     isSending = false;
 }

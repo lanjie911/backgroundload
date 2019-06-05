@@ -42,4 +42,11 @@ public class SMSSendDAO {
         Object[] paras = new Object[]{merchantId, msg, status, mobile, mid, result};
         jdbcTemplate.update(sql.toString(), paras);
     }
+
+    // 更新验证码发送状态
+    public void updateMTVCode(String mobile, String mid, String state) {
+        String sql = "UPDATE mt_vcode SET rs_stat=? WHERE mobile=? and mid=?";
+        Object[] paras = new Object[]{state, mobile, mid};
+        jdbcTemplate.update(sql, paras);
+    }
 }

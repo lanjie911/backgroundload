@@ -1,6 +1,7 @@
 package com.juhex.sms.service;
 
 import com.juhex.sms.bean.*;
+import com.juhex.sms.config.SMSConfig;
 import com.juhex.sms.dao.MerchantDAO;
 import com.juhex.sms.dao.SMSSendDAO;
 import org.apache.http.cookie.SM;
@@ -28,28 +29,12 @@ public class SMSSendService {
 
     private final Integer SMS_SEND_TIMES = 5;
 
-    private Properties prop;
+    @Autowired
+    private SMSConfig smsConfig;
 
     @PostConstruct
     public void init(){
-        // 读取配置文件的关键
-        String os = System.getProperty("os.name");
-        String filePath = "";
-        if(os.toLowerCase().contains("windows")){
-            filePath = "d:/smskey.properties";
-        }else if(os.toLowerCase().contains("linux")){
-            filePath = "~/smskey.properties";
-        }else{
-            throw new Error("Unrecognized Operation System!!");
-        }
 
-        prop = new Properties();
-        try(FileReader fr = new FileReader(filePath)){
-            prop.load(fr);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
     }
 
     public boolean isSMSCouldBeDelivered(String phone, Merchant merchant) {
@@ -90,10 +75,10 @@ public class SMSSendService {
         String content = smsTemplate.replaceAll("\\{vcode\\}",vcode);
 
         SMSJob job = new SMSJob();
-        job.setUrl("http://"+prop.getProperty("vhost")+":"+prop.getProperty("vport")+"/sms");
-        job.setAccount(prop.getProperty("verify.acccount"));
-        job.setPassword(prop.getProperty("verify.password"));
-        job.setExtno(prop.getProperty("verify.vopernum"));
+        job.setUrl("http://"+smsConfig.get("vhost")+":"+smsConfig.get("vport")+"/sms");
+        job.setAccount(smsConfig.get("verify.acccount"));
+        job.setPassword(smsConfig.get("verify.password"));
+        job.setExtno(smsConfig.get("verify.vopernum"));
         job.setRt("json");
         job.setMobile(phone);
         job.setContent(content);

@@ -4,6 +4,7 @@ public class SMSPackage {
     private String mid;
     private String mobile;
     private Integer result;
+    private String stat;
 
     public SMSPackage(){
 
@@ -31,5 +32,13 @@ public class SMSPackage {
 
     public void setResult(Integer result) {
         this.result = result;
+    }
+
+    public String getStat() {
+        return stat;
+    }
+
+    public void setStat(String stat) {
+        this.stat = stat;
     }
 }

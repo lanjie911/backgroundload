@@ -51,4 +51,20 @@ public class SMSClient {
             return "ERROR";
         }
     }
+
+    public String queryReport(String url, String account, String password, String rt) {
+
+        try {
+            StringBuffer sendParam = new StringBuffer();
+            sendParam.append("action=").append("report");
+            sendParam.append("&account=").append(URLEncoder.encode(account, "UTF-8"));
+            sendParam.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
+            sendParam.append("&rt=").append(URLEncoder.encode(rt, "UTF-8"));
+
+            return smsClientAccessTool.doAccessHTTPPost(url, sendParam.toString(), "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "ERROR";
+        }
+    }
 }

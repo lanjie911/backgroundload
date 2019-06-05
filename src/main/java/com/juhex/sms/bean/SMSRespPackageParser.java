@@ -1,5 +1,6 @@
 package com.juhex.sms.bean;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,8 @@ public class SMSRespPackageParser {
 
     public SMSRespPackageParser() {
         om = new ObjectMapper();
+        // 忽略没有的属性
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public SMSResp parseSMSResultText(String json) {
