@@ -4,7 +4,7 @@ spring:
     url: jdbc:mysql://192.168.223.129:3306/daichao?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
     username: nodeuser
     password: nodeuser123!
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     maxActive: 20
     initialSize: 4

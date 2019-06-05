@@ -11,7 +11,8 @@ public class MerchantService {
     @Autowired
     private MerchantDAO merchantDAO;
 
-    public Merchant getMerchantByKeycode(String keycode){
+    public Merchant getMerchantByKeycode(String keycode) {
         return merchantDAO.queryByKeyCode(keycode);
     }
+
 }

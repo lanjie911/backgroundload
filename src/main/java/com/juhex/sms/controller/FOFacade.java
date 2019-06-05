@@ -3,6 +3,7 @@ package com.juhex.sms.controller;
 import com.juhex.sms.bean.*;
 import com.juhex.sms.service.CommonService;
 import com.juhex.sms.service.MerchantService;
+import com.juhex.sms.service.SMSSendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class FOFacade {
 
     @Autowired
     private MerchantService merchantService;
+
+    @Autowired
+    private SMSSendService smsSendService;
 
     private Logger logger;
 
@@ -83,9 +87,18 @@ public class FOFacade {
         // 验证短信是否可以被发送
         // 是否在黑名单中
         // 是否达到了最大发送次数
+        boolean canSend = smsSendService.isSMSCouldBeDelivered(phone,m);
+        if(!canSend){
+            logger.info("Before send SMS, can't send by requirement!");
+            resultMap.put("rs","ERR");
+            resultMap.put("text","发送次数过多");
+            return writer.generate(resultMap);
+        }
 
-
-
+        // 此处是发送真的验证码短信
+        // 由于是异步发送，所以不关注结果
+        // 只要不抛出异常即可
+        smsSendService.sendVerifyCodeSMS(phone,m);
 
         resultMap.put("rs","OK");
         resultMap.put("text","发送验证码成功");

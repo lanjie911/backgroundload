@@ -25,4 +25,10 @@ public class MerchantDAO {
             return m;
         });
     }
+
+    public String qryTemplate(Long merchantId,Integer type){
+        String sql = "SELECT tempalte_text FROM sms_template WHERE merchant_id=? AND template_type=?";
+        Object[] paras = new Object[]{merchantId,type};
+        return jdbcTemplate.queryForObject(sql,paras,String.class);
+    }
 }
