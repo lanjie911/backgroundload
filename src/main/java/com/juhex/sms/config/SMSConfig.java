@@ -27,7 +27,7 @@ public class SMSConfig {
         if(os.toLowerCase().contains("windows")){
             filePath = "d:/smskey.properties";
         }else if(os.toLowerCase().contains("linux")){
-            filePath = "~/smskey.properties";
+            filePath = "/home/smsjava/smskey.properties";
         }else{
             throw new Error("Unrecognized Operation System!!");
         }
