@@ -26,9 +26,12 @@ public class PhoneDistrictUtil {
 
     private Logger logger;
 
+    private ObjectMapper mapper;
+
     public PhoneDistrictUtil(){
         client = HttpClientBuilder.create().build();
         logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+        mapper = new ObjectMapper();
     }
 
     public PhoneDistrict fetchPhoneDistrictByBaiduAPI(String phoneNumber) {
@@ -72,7 +75,6 @@ public class PhoneDistrictUtil {
             endIndex = jsonText.lastIndexOf("}]")+1;
             String jsonData = jsonText.substring(beginIndex,endIndex);
 
-            ObjectMapper mapper = new ObjectMapper();
             logger.info("JSON data is : {}",jsonData);
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             PhoneDistrict pd = mapper.readValue(jsonData,PhoneDistrict.class);

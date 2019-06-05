@@ -11,19 +11,23 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
+/**
+ * 因为在启动阶段这个类才会被调用，相当于配置文件<p></p>
+ * 所以不用担心反复创建对象
+ */
 @Configuration
 public class BeanGenerator {
 
     @Bean
-    public DemonBean getDemonBean(){
+    public DemonBean getDemonBean() {
         return new DemonBean();
     }
 
-    @Bean(name={"dataSource"})
+    @Bean(name = {"dataSource"})
     @Qualifier(value = "dataSource")
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource generateDataSource(){
+    public DataSource generateDataSource() {
         DataSource source = new DruidDataSource();
         return source;
     }

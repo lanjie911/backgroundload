@@ -14,7 +14,11 @@ public class DemonBean {
         return para.toLowerCase();
     }
 
-    public Long getCalc(){
+    public Long getCalc() {
         return this.calc;
+    }
+
+    public void increase() {
+        this.calc += 100L;
     }
 }
