@@ -21,6 +21,9 @@ public class BackgroudSMSSender {
     @Autowired
     private SMSSendDAO smsSendDAO;
 
+    @Autowired
+    private SMSRespPackageParser smsRespPackageParser;
+
     private Logger logger;
 
     @PostConstruct
@@ -37,10 +40,11 @@ public class BackgroudSMSSender {
             logger.info("[SMS-RESULT] : {}",result);
             if(!"ERROR".equals(result)){
                 // 发送成功入库
+                SMSResp resp = smsRespPackageParser.parseSMSResultText(result);
+                SMSPackage pack = resp.getList().get(0);
                 Long merchantId = job.getMerchantId();
                 String msg = job.getContent();
-                String mobile = job.getMobile();
-                smsSendDAO.insertIntoMTVCode(merchantId,msg,mobile,result,1L);
+                smsSendDAO.insertIntoMTVCode(merchantId,msg,resp.getStatus(),job.getMobile(),pack.getMid(),pack.getResult());
             }
         };
 

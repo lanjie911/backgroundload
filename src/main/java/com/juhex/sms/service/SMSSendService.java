@@ -28,11 +28,7 @@ public class SMSSendService {
 
     private final Integer SMS_SEND_TIMES = 5;
 
-    private String SMS_ACCOUNT;
-    private String SMS_PASSWORD;
-    private String SMS_VOPERNUM;
-    private String SMS_HOST_IP;
-    private String SMS_HOST_PORT;
+    private Properties prop;
 
     @PostConstruct
     public void init(){
@@ -47,20 +43,13 @@ public class SMSSendService {
             throw new Error("Unrecognized Operation System!!");
         }
 
-        Properties p = new Properties();
+        prop = new Properties();
         try(FileReader fr = new FileReader(filePath)){
-            p.load(fr);
+            prop.load(fr);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
         }
-
-        SMS_ACCOUNT = p.getProperty("account");
-        SMS_PASSWORD = p.getProperty("password");
-        SMS_VOPERNUM = p.getProperty("vopernum");
-        SMS_HOST_IP = p.getProperty("vhost");
-        SMS_HOST_PORT = p.getProperty("vport");
-
     }
 
     public boolean isSMSCouldBeDelivered(String phone, Merchant merchant) {
@@ -101,10 +90,10 @@ public class SMSSendService {
         String content = smsTemplate.replaceAll("\\{vcode\\}",vcode);
 
         SMSJob job = new SMSJob();
-        job.setUrl("http://"+SMS_HOST_IP+":"+SMS_HOST_PORT+"/sms");
-        job.setAccount(SMS_ACCOUNT);
-        job.setPassword(SMS_PASSWORD);
-        job.setExtno(SMS_VOPERNUM);
+        job.setUrl("http://"+prop.getProperty("vhost")+":"+prop.getProperty("vport")+"/sms");
+        job.setAccount(prop.getProperty("verify.acccount"));
+        job.setPassword(prop.getProperty("verify.password"));
+        job.setExtno(prop.getProperty("verify.vopernum"));
         job.setRt("json");
         job.setMobile(phone);
         job.setContent(content);
