@@ -1,4 +1,4 @@
-package com.juhex.sms.bean;
+package com.juhex.sms.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

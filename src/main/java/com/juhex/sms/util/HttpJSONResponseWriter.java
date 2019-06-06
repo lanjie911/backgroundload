@@ -1,4 +1,4 @@
-package com.juhex.sms.bean;
+package com.juhex.sms.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

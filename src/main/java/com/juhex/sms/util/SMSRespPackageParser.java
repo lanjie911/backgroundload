@@ -1,7 +1,8 @@
-package com.juhex.sms.bean;
+package com.juhex.sms.util;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.juhex.sms.bean.SMSResp;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

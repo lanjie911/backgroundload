@@ -1,4 +1,4 @@
-package com.juhex.sms.bean;
+package com.juhex.sms.util;
 
 import org.springframework.stereotype.Component;
 

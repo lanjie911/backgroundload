@@ -1,7 +1,7 @@
 # druid
 spring: 
   datasource: 
-    url: jdbc:mysql://192.168.223.129:3306/daichao?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
+    url: jdbc:mysql://persist.mysqld.com:3306/daichao?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
     username: nodeuser
     password: nodeuser123!
     driver-class-name: com.mysql.cj.jdbc.Driver
