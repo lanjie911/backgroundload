@@ -54,4 +54,12 @@ public class BackgroudSMSSender {
         senderExecutor.submit(run);
     }
 
+    public void sumbitP2PJob(final SMSJob job){
+        Runnable run = ()-> {
+            String result = smsClient.sendP2PSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getContent(), job.getExtno(), job.getRt());
+            logger.info("[SMS-RESULT] : {}", result);
+        };
+        senderExecutor.submit(run);
+    }
+
 }

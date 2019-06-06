@@ -12,7 +12,7 @@ public class VerifyUtil {
     private String REGEX_6_VCODE;
 
     public VerifyUtil(){
-        REGEX_MOBILE = "^((17[0-9])|(14[0-9])|(13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$";
+        REGEX_MOBILE = "^((17[0-9])|(14[0-9])|(13[0-9])|(15[^4,\\D])|(18[0-9]))\\d{8}$";
         REGEX_6_VCODE = "^([0-9]){6,6}$";
     }
 

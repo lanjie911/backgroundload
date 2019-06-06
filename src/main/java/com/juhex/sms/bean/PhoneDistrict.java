@@ -5,6 +5,7 @@ public class PhoneDistrict {
     private String city;
     private String prov;
     private String type;
+    private String phone;
 
     public String getType() {
         return type;
@@ -28,5 +29,13 @@ public class PhoneDistrict {
 
     public void setProv(String prov) {
         this.prov = prov;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

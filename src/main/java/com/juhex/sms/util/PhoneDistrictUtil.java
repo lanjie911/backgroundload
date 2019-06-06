@@ -74,8 +74,16 @@ public class PhoneDistrictUtil {
             String jsonData = jsonText.substring(beginIndex,endIndex);
 
             logger.info("JSON data is : {}",jsonData);
+
+            if("".equals(jsonData)||jsonData.trim().length()==0){
+                logger.warn("[BaiDu] API Service is busy, no data return.");
+                return null;
+            }
+
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             PhoneDistrict pd = mapper.readValue(jsonData,PhoneDistrict.class);
+
+            pd.setPhone(phoneNumber);
 
             return pd;
         } catch (IOException e) {
