@@ -76,7 +76,7 @@ public class BackgroudSMSStateLooper {
         initConfig();
         // 初始化1个定期间隔线程
         this.senderExecutor = Executors.newScheduledThreadPool(1);
-        senderExecutor.scheduleWithFixedDelay(job, 10, 60, TimeUnit.SECONDS);
+        senderExecutor.scheduleWithFixedDelay(job, 10, 15, TimeUnit.SECONDS);
         logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     }
 }
