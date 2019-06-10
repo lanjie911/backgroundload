@@ -75,7 +75,7 @@ public class SMSSendService {
 
         SMSJob job = new SMSJob();
         job.setUrl("http://"+smsConfig.get("vhost")+":"+smsConfig.get("vport")+"/sms");
-        job.setAccount(smsConfig.get("verify.acccount"));
+        job.setAccount(smsConfig.get("verify.account"));
         job.setPassword(smsConfig.get("verify.password"));
         job.setExtno(smsConfig.get("verify.vopernum"));
         job.setRt("json");
