@@ -48,6 +48,19 @@ public class SMSSendDAO {
         }
     }
 
+    public void insertMTCommand(Long merchantId, String msg, Integer status, String mobile, String mid, Integer result) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("INSERT INTO mt_command (merchant_id,req_time,raw_msg,rs_status,mobile,mid,rs_result)");
+        sql.append("values(?,NOW(),?,?,?,?,?)");
+        Object[] paras = new Object[]{merchantId, msg, status, mobile, mid, result};
+        try {
+            jdbcTemplate.update(sql.toString(), paras);
+        }catch (Exception e){
+            e.printStackTrace();
+            //continue
+        }
+    }
+
     public void insertVCodeVerify(Long merchantId , String mobile , String vcode){
         String sql = "INSERT INTO vcode_verify ";
         sql += "(merchant_id,phone_number,vcode)VALUES";

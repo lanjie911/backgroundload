@@ -41,6 +41,7 @@ public class BackgroundJKDHttpSender {
             HttpPost postReq = new HttpPost("http://jkd.ryxfintech.com/api.php/External/Marketing/ChannelRegister");
 
             String jsonString = "{\"Mobile\":\""+mobile+"\",\"client\":\""+ctype+"\",\"puser\":\"wytg\",\"ppass\":\"1234qwer\"}";
+            String jsonStringEnc = "{\"Mobile\":\""+mobile+"\",\"client\":\""+ctype+"\",\"puser\":\"****\",\"ppass\":\"********\"}";
 
             StringEntity entity = new StringEntity(jsonString, "UTF-8");
             postReq.setEntity(entity);
@@ -74,7 +75,7 @@ public class BackgroundJKDHttpSender {
                 client.close();
 
                 // 报文入库
-                merchantService.recordMOCommand(merchantId,mobile,jsonString,respJson,respStatus);
+                merchantService.recordMOCommand(merchantId,mobile,jsonStringEnc,respJson,respStatus);
 
             } catch (Exception e) {
                 e.printStackTrace();

@@ -104,7 +104,7 @@ public class BackgroundBatchMarketingSender {
                     logger.info("[SMS-MARKETING] sending marketing from {} to {}", begin, end-1);
                     tempList = sendList.subList(begin,end);
                     content = constructMarketingSMS(template, tempList, task);
-                    submitMarketingSMSJob(content);
+                    submitMarketingSMSJob(task.getMerchantId(),content);
                     begin = end;
                     end += 100;
                 }
@@ -114,7 +114,7 @@ public class BackgroundBatchMarketingSender {
                 logger.info("[SMS-MARKETING] sending marketing from {} to {}", begin, end);
                 tempList = sendList.subList(begin,end);
                 content = constructMarketingSMS(template, tempList, task);
-                submitMarketingSMSJob(content);
+                submitMarketingSMSJob(task.getMerchantId(),content);
 
             }catch(Throwable a){
                 a.printStackTrace();
@@ -126,7 +126,7 @@ public class BackgroundBatchMarketingSender {
         logger.info("[SMS-MARKETING] : initiated...");
     }
 
-    private void submitMarketingSMSJob(String content) {
+    private void submitMarketingSMSJob(Long merchantId,String content) {
         SMSJob job = new SMSJob();
         job.setUrl("http://" + smsConfig.get("vhost") + ":" + smsConfig.get("vport") + "/sms");
         job.setAccount(smsConfig.get("market.account"));
@@ -134,6 +134,7 @@ public class BackgroundBatchMarketingSender {
         job.setExtno(smsConfig.get("market.vopernum"));
         job.setRt("json");
         job.setContent(content);
+        job.setMerchantId(merchantId);
         backgroudSMSSender.sumbitP2PJob(job);
     }
 
@@ -147,10 +148,10 @@ public class BackgroundBatchMarketingSender {
         for (String phone : phoneList) {
 
             String shortURL = shortLinkGenerator.zipURL(merchantId + "&" + taskId + "&" + phone);
-            logger.info("【Background Send】 phone is {}, short URL is {}",shortURL);
+            logger.info("【Background Send】 phone is {}, short URL is {}",phone,shortURL);
             shortURL = "http://loan.juhedx.com/t/" + shortURL;
             String message = template.replaceAll("\\{slink\\}", shortURL);
-            logger.info("【Background Send】 phone is {}, whole message is {}",message);
+            logger.info("【Background Send】 phone is {}, whole message is {}",phone,message);
             sb.append(phone + "#" + message);
             sb.append("\r");
 

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,8 +62,17 @@ public class BackgroudSMSSender {
         Runnable run = () -> {
             try {
                 String result = smsClient.sendP2PSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getContent(), job.getExtno(), job.getRt());
-                logger.info("[SMS-RESULT] : {}", result);
-            }catch (Exception e){
+                logger.info("[SMS-P2P-RESULT] : {}", result);
+                if (!"ERROR".equals(result)) {
+                    SMSResp resp = smsRespPackageParser.parseSMSResultText(result);
+                    List<SMSPackage> packages = resp.getList();
+                    for (SMSPackage pack : packages) {
+                        Long merchantId = job.getMerchantId();
+                        String msg = "*BATCH BINARY CONTENT*";
+                        smsSendDAO.insertMTCommand(merchantId, msg, resp.getStatus(), pack.getMobile(), pack.getMid(), pack.getResult());
+                    }
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         };

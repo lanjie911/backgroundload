@@ -43,6 +43,7 @@ public class RegisterFacade {
         String os = System.getProperty("os.name");
         if (os.toLowerCase().contains("windows")) {
             port = ":8080";
+            domain = "127.0.0.1";
         }
         WHOLE_URL = protocol + "://" + domain + port + "/jkd/index.html";
     }
