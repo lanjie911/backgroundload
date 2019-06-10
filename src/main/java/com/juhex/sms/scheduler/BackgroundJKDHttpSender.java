@@ -2,6 +2,7 @@ package com.juhex.sms.scheduler;
 
 import com.juhex.sms.service.MerchantService;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -44,6 +45,17 @@ public class BackgroundJKDHttpSender {
             StringEntity entity = new StringEntity(jsonString, "UTF-8");
             postReq.setEntity(entity);
             postReq.setHeader("Content-Type", "application/json;charset=utf8");
+
+            RequestConfig requestConfig = RequestConfig.custom()
+                    // 设置连接到对方服务器的超时时间
+                    .setConnectTimeout(2000)
+                    // 设置从连接池拿到连接的超时时间和数据库连接池类似
+                    .setConnectionRequestTimeout(1000)
+                    // 设置数据传输超时时间，如果数据太大，则超时放弃
+                    .setSocketTimeout(3000).build();
+
+            postReq.setConfig(requestConfig);
+
             CloseableHttpResponse response = null;
             String respJson = "";
             int respStatus = 0;
