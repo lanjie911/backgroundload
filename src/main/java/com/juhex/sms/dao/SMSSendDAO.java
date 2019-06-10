@@ -35,18 +35,51 @@ public class SMSSendDAO {
 
     // 插入mt_vcode表
     // 注册验证码明细
-    public void insertIntoMTVCode(Long merchantId, String msg, Integer status, String mobile, String mid, Integer result) {
+    public void insertMTVCode(Long merchantId, String msg, Integer status, String mobile, String mid, Integer result) {
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO mt_vcode (merchant_id,req_time,raw_msg,rs_status,mobile,mid,rs_result)");
         sql.append("values(?,NOW(),?,?,?,?,?)");
         Object[] paras = new Object[]{merchantId, msg, status, mobile, mid, result};
-        jdbcTemplate.update(sql.toString(), paras);
+        try {
+            jdbcTemplate.update(sql.toString(), paras);
+        }catch (Exception e){
+            e.printStackTrace();
+            //continue
+        }
+    }
+
+    public void insertVCodeVerify(Long merchantId , String mobile , String vcode){
+        String sql = "INSERT INTO vcode_verify ";
+        sql += "(merchant_id,phone_number,vcode)VALUES";
+        sql += "(?,?,?)";
+        Object[] paras = new Object[]{merchantId, mobile, vcode};
+        try {
+            jdbcTemplate.update(sql, paras);
+        }catch (Exception e){
+            e.printStackTrace();
+            //continue
+        }
     }
 
     // 更新验证码发送状态
     public void updateMTVCode(String mobile, String mid, String state) {
         String sql = "UPDATE mt_vcode SET rs_stat=? WHERE mobile=? and mid=?";
         Object[] paras = new Object[]{state, mobile, mid};
-        jdbcTemplate.update(sql, paras);
+        try{
+            jdbcTemplate.update(sql, paras);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void updateMTCommand(String mobile, String mid, String state) {
+        String sql = "UPDATE mt_command SET rs_stat=? WHERE mobile=? and mid=?";
+        Object[] paras = new Object[]{state, mobile, mid};
+        try{
+            jdbcTemplate.update(sql, paras);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

@@ -82,6 +82,7 @@ public class SMSSendService {
         job.setMobile(phone);
         job.setContent(content);
         job.setMerchantId(m.getMerchantId());
+        job.setVcode(vcode);
 
         backgroudSMSSender.submitSingleJob(job);
     }

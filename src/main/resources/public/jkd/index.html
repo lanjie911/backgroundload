@@ -61,6 +61,13 @@ if (isAndroid) {
 
 var isSending = false;
 
+// 获取客户端URL
+var qrycondition = window.location.search;
+console.log("q URL is %s",qrycondition);
+
+var shorturl = qrycondition.split("=")[1];
+console.log("q para is %s",shorturl);
+
 // send sms req
 function getcode() {
     if (isSending) {
@@ -139,10 +146,25 @@ function fnRegister() {
         return;
     }
     //调用注册接口，完成注册：需要对接
+    var tmStamp = new Date().getTime();
+    $.ajax({
+        url: "/jkd/reg?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&vcode="+MsgCode+"&surl="+shorturl+"&ctype="+$('#client').val()+"&tm="+tmStamp,
+        dataType: "json",
+        type: "GET",
+        success: function(data){
+            alert(data.text);
+            if(data.rs == "0"){
+                //注册成功后，进入APP下载页面。Android则下载APP，IOS则进入H5页
+                window.location.href = "http://t.cn/Ai9VYaKo";
+            }
 
-    //注册成功后，进入APP下载页面。Android则下载APP，IOS则进入H5页
-    if (true) {
-        window.location.href = "http://t.cn/Ai9VYaKo";
-    }
+        },
+        error: function(){
+            layer.open({
+                content: '未知错误！',
+                btn: '确定'
+            });
+        }
+    });
 }
 </script>

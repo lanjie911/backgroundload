@@ -30,34 +30,41 @@ public class BackgroudSMSSender {
     private Logger logger;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         // 初始化两个发送验证码的短息线程足以
         this.senderExecutor = Executors.newFixedThreadPool(2);
         logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     }
 
-    public void submitSingleJob(final SMSJob job){
+    public void submitSingleJob(final SMSJob job) {
 
-        Runnable run = ()-> {
-            String result = smsClient.sendSms(job.getUrl(),job.getAccount(),job.getPassword(),job.getMobile(),job.getContent(),job.getExtno(),job.getRt());
-            logger.info("[SMS-RESULT] : {}",result);
-            if(!"ERROR".equals(result)){
+        Runnable run = () -> {
+            String result = smsClient.sendSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getMobile(), job.getContent(), job.getExtno(), job.getRt());
+            logger.info("[SMS-RESULT] : {}", result);
+            if (!"ERROR".equals(result)) {
                 // 发送成功入库
                 SMSResp resp = smsRespPackageParser.parseSMSResultText(result);
                 SMSPackage pack = resp.getList().get(0);
                 Long merchantId = job.getMerchantId();
                 String msg = job.getContent();
-                smsSendDAO.insertIntoMTVCode(merchantId,msg,resp.getStatus(),job.getMobile(),pack.getMid(),pack.getResult());
+                smsSendDAO.insertMTVCode(merchantId, msg, resp.getStatus(), job.getMobile(), pack.getMid(), pack.getResult());
+
+                // 插入验证码库
+                smsSendDAO.insertVCodeVerify(merchantId, job.getMobile(), job.getVcode());
             }
         };
 
         senderExecutor.submit(run);
     }
 
-    public void sumbitP2PJob(final SMSJob job){
-        Runnable run = ()-> {
-            String result = smsClient.sendP2PSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getContent(), job.getExtno(), job.getRt());
-            logger.info("[SMS-RESULT] : {}", result);
+    public void sumbitP2PJob(final SMSJob job) {
+        Runnable run = () -> {
+            try {
+                String result = smsClient.sendP2PSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getContent(), job.getExtno(), job.getRt());
+                logger.info("[SMS-RESULT] : {}", result);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         };
         senderExecutor.submit(run);
     }

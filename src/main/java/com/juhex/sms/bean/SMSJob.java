@@ -10,6 +10,15 @@ public class SMSJob {
     private String extno;
     private String rt;
     private Long merchantId;
+    private String vcode;
+
+    public String getVcode() {
+        return vcode;
+    }
+
+    public void setVcode(String vcode) {
+        this.vcode = vcode;
+    }
 
     public String getUrl() {
         return url;

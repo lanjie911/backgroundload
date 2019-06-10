@@ -75,26 +75,50 @@ public class BackgroundBatchMarketingSender {
         fileLoader = Executors.newScheduledThreadPool(1);
 
         fileLoadTask = () -> {
-            SMSTask task = smsTaskDAO.qryOneSMSTask();
-            if (task == null) {
-                logger.info("[SMS-MARKETING] : NO TASK FOUND.");
-                return;
+            try {
+                SMSTask task = smsTaskDAO.qryOneSMSTask();
+                if (task == null) {
+                    logger.info("[SMS-MARKETING] : NO TASK FOUND.");
+                    return;
+                }
+                logger.info("[SMS-MARKETING] task id is {}", task.getTaskId());
+
+                //把任务状态改为处理中，防止重复抓取
+                smsTaskDAO.updateSMSTaskState(task.getTaskId());
+
+                String filePath = task.getFilePath();
+                logger.info("[SMS-MARKETING] file path is {}", filePath);
+                List<String> phoneList = this.getPhoneListFromFile(filePath);
+                logger.info("[SMS-MARKETING] phone list size is {}", phoneList.size());
+                String template = merchantDAO.qryTemplate(task.getMerchantId(), 2);
+                logger.info("[SMS-MARKETING] phone template is {}", template);
+                List<String> sendList = filterPhoneList(phoneList, task);
+                logger.info("[SMS-MARKETING] after filter size is {}", sendList.size());
+                //拆分发送
+                int lastPosition = sendList.size();
+                int begin = 0;
+                int end = 101;
+                String content = "";
+                List<String> tempList = null;
+                while(end < lastPosition){
+                    logger.info("[SMS-MARKETING] sending marketing from {} to {}", begin, end-1);
+                    tempList = sendList.subList(begin,end);
+                    content = constructMarketingSMS(template, tempList, task);
+                    submitMarketingSMSJob(content);
+                    begin = end;
+                    end += 100;
+                }
+
+                // 最后一批
+                end = lastPosition;
+                logger.info("[SMS-MARKETING] sending marketing from {} to {}", begin, end);
+                tempList = sendList.subList(begin,end);
+                content = constructMarketingSMS(template, tempList, task);
+                submitMarketingSMSJob(content);
+
+            }catch(Throwable a){
+                a.printStackTrace();
             }
-            logger.info("[SMS-MARKETING] task id is {}", task.getTaskId());
-
-            //把任务状态改为处理中，防止重复抓取
-            smsTaskDAO.updateSMSTaskState(task.getTaskId());
-
-            String filePath = task.getFilePath();
-            logger.info("[SMS-MARKETING] file path is {}", filePath);
-            List<String> phoneList = this.getPhoneListFromFile(filePath);
-            logger.info("[SMS-MARKETING] phone list size is {}", phoneList.size());
-            String template = merchantDAO.qryTemplate(task.getMerchantId(), 2);
-            logger.info("[SMS-MARKETING] phone template is {}", template);
-            List<String> sendList = filterPhoneList(phoneList, task);
-            logger.info("[SMS-MARKETING] after filter size is {}", sendList.size());
-            String content = constructMarketingSMS(template, sendList, task);
-            //submitMarketingSMSJob(content);
         };
 
         fileLoader.scheduleWithFixedDelay(fileLoadTask, 5, 10, TimeUnit.SECONDS);
@@ -105,7 +129,7 @@ public class BackgroundBatchMarketingSender {
     private void submitMarketingSMSJob(String content) {
         SMSJob job = new SMSJob();
         job.setUrl("http://" + smsConfig.get("vhost") + ":" + smsConfig.get("vport") + "/sms");
-        job.setAccount(smsConfig.get("market.acccount"));
+        job.setAccount(smsConfig.get("market.account"));
         job.setPassword(smsConfig.get("market.password"));
         job.setExtno(smsConfig.get("market.vopernum"));
         job.setRt("json");

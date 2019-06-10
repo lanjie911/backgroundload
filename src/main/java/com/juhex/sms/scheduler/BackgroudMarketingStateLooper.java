@@ -1,11 +1,11 @@
 package com.juhex.sms.scheduler;
 
-import com.juhex.sms.util.SMSClient;
 import com.juhex.sms.bean.SMSPackage;
 import com.juhex.sms.bean.SMSResp;
-import com.juhex.sms.util.SMSRespPackageParser;
 import com.juhex.sms.config.SMSConfig;
 import com.juhex.sms.dao.SMSSendDAO;
+import com.juhex.sms.util.SMSClient;
+import com.juhex.sms.util.SMSRespPackageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class BackgroudSMSStateLooper {
+public class BackgroudMarketingStateLooper {
 
     private ScheduledExecutorService senderExecutor;
 
@@ -38,19 +38,19 @@ public class BackgroudSMSStateLooper {
 
     private Runnable job;
 
-    public BackgroudSMSStateLooper() {
+    public BackgroudMarketingStateLooper() {
 
     }
 
     private void initConfig(){
         String url = "http://" + smsConfig.get("vhost") + ":" + smsConfig.get("vport") + "/sms";
-        String account = smsConfig.get("verify.account");
-        String password = smsConfig.get("verify.password");
+        String account = smsConfig.get("market.account");
+        String password = smsConfig.get("market.password");
 
         job = () -> {
 
             String result = smsClient.queryReport(url, account, password, "json");
-            logger.info("[SMS-REPORT] : {}", result);
+            logger.info("[MARKET-REPORT] : {}", result);
             try {
                 if (!"ERROR".equals(result)) {
                     // 发送成功入库
@@ -61,7 +61,7 @@ public class BackgroudSMSStateLooper {
                         String mid = pack.getMid();
                         String mobile = pack.getMobile();
                         String stat = pack.getStat();
-                        smsSendDAO.updateMTVCode(mobile,mid,stat);
+                        smsSendDAO.updateMTCommand(mobile,mid,stat);
                     }
                 }
             } catch (Throwable a) {
