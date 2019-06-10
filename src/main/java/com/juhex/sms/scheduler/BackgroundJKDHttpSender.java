@@ -66,11 +66,11 @@ public class BackgroundJKDHttpSender {
                 // 从响应模型中获取响应实体
                 HttpEntity responseEntity = response.getEntity();
                 respStatus = response.getStatusLine().getStatusCode();
-                logger.info("[JKD HTTP Response Status is ]: {}",respStatus);
+                logger.info("[JKD HTTP Response Status is ] : {}",respStatus);
 
                 if (responseEntity != null) {
                     respJson = EntityUtils.toString(responseEntity);
-                    logger.info("[JKD HTTP Response Content is ]: {}" + respJson);
+                    logger.info("[JKD HTTP Response Content ] : {}, {}",mobile,respJson);
                 }
                 client.close();
 
