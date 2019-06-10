@@ -79,7 +79,7 @@ public class RegisterFacade {
         }
     }
 
-    @RequestMapping(method = {RequestMethod.GET}, path = {"/jkd/reg"})
+    @RequestMapping(method = {RequestMethod.GET}, path = {"/reg/jkd"})
     @ResponseBody
     public String regJKD(@RequestParam(name = "q") String mobile, @RequestParam(name = "keycode") String keyCode, @RequestParam(name = "vcode") String vcode, @RequestParam("ctype") String ctype,@RequestParam(name = "surl") String shortURL) {
 

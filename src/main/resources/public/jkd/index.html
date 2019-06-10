@@ -148,7 +148,7 @@ function fnRegister() {
     //调用注册接口，完成注册：需要对接
     var tmStamp = new Date().getTime();
     $.ajax({
-        url: "/jkd/reg?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&vcode="+MsgCode+"&surl="+shorturl+"&ctype="+$('#client').val()+"&tm="+tmStamp,
+        url: "/reg/jkd?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&vcode="+MsgCode+"&surl="+shorturl+"&ctype="+$('#client').val()+"&tm="+tmStamp,
         dataType: "json",
         type: "GET",
         success: function(data){
