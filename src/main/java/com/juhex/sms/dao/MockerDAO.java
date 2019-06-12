@@ -16,7 +16,12 @@ public class MockerDAO {
     public List<PhoneDelivered> qryUnreported(String tableName){
         String sql = "SELECT mobile, mid FROM "+tableName+" WHERE rs_stat IS NULL limit 10 offset 0";
         try{
-            return jdbcTemplate.queryForList(sql,PhoneDelivered.class);
+            return jdbcTemplate.query(sql,(rs,i)->{
+                PhoneDelivered pd = new PhoneDelivered();
+                pd.setMid(rs.getString("mid"));
+                pd.setPhoneNumber(rs.getString("mobile"));
+                return pd;
+            });
         }catch (Exception e){
             e.printStackTrace();
             return null;
