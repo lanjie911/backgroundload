@@ -1,5 +1,6 @@
 package com.juhex.sms.scheduler;
 
+import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.service.MerchantService;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
@@ -28,20 +29,23 @@ public class BackgroundJKDHttpSender {
     @Autowired
     private MerchantService merchantService;
 
+    @Autowired
+    private EnvDetector envDetector;
+
     @PostConstruct
-    private void init(){
+    private void init() {
         es = Executors.newFixedThreadPool(5);
         logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     }
 
-    private final void handleHTTPReq(Long merchantId,String mobile , String ctype){
-        try{
+    private final void handleHTTPReq(Long merchantId, String mobile, String ctype) {
+        try {
             // 都没问题发送请求
             CloseableHttpClient client = HttpClientBuilder.create().build();
             HttpPost postReq = new HttpPost("http://jkd.ryxfintech.com/api.php/External/Marketing/ChannelRegister");
 
-            String jsonString = "{\"Mobile\":\""+mobile+"\",\"client\":\""+ctype+"\",\"puser\":\"wytg\",\"ppass\":\"1234qwer\"}";
-            String jsonStringEnc = "{\"Mobile\":\""+mobile+"\",\"client\":\""+ctype+"\",\"puser\":\"****\",\"ppass\":\"********\"}";
+            String jsonString = "{\"Mobile\":\"" + mobile + "\",\"client\":\"" + ctype + "\",\"puser\":\"wytg\",\"ppass\":\"1234qwer\"}";
+            String jsonStringEnc = "{\"Mobile\":\"" + mobile + "\",\"client\":\"" + ctype + "\",\"puser\":\"****\",\"ppass\":\"********\"}";
 
             StringEntity entity = new StringEntity(jsonString, "UTF-8");
             postReq.setEntity(entity);
@@ -66,29 +70,51 @@ public class BackgroundJKDHttpSender {
                 // 从响应模型中获取响应实体
                 HttpEntity responseEntity = response.getEntity();
                 respStatus = response.getStatusLine().getStatusCode();
-                logger.info("[JKD HTTP Response Status is ] : {}",respStatus);
+                logger.info("[JKD HTTP Response Status is ] : {}", respStatus);
 
                 if (responseEntity != null) {
                     respJson = EntityUtils.toString(responseEntity);
-                    logger.info("[JKD HTTP Response Content ] : {}, {}",mobile,respJson);
+                    logger.info("[JKD HTTP Response Content ] : {}, {}", mobile, respJson);
                 }
                 client.close();
 
                 // 报文入库
-                merchantService.recordMOCommand(merchantId,mobile,jsonStringEnc,respJson,respStatus);
+                merchantService.recordMOCommand(merchantId, mobile, jsonStringEnc, respJson, respStatus);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void submitTask(Long merchantId, String mobile,String ctype){
-        Runnable task = ()->{
-            handleHTTPReq(merchantId,mobile,ctype);
-        };
+    private final void mockHTTPReq(Long merchantId, String mobile, String ctype) {
+        try {
+
+            String respJson = "{\"result\":1,\"message\":\"\\u6ce8\\u518c\\u6210\\u529f\"} ";
+            int respStatus = 200;
+            String jsonStringEnc = "{\"Mobile\":\"" + mobile + "\",\"client\":\"" + ctype + "\",\"puser\":\"****\",\"ppass\":\"********\"}";
+            logger.info("[MOCK HTTP Response Status is ] : {}", respStatus);
+            logger.info("[MOCK HTTP Response Content ] : {}, {}", mobile, respJson);
+            merchantService.recordMOCommand(merchantId, mobile, jsonStringEnc, respJson, respStatus);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void submitTask(Long merchantId, String mobile, String ctype) {
+        Runnable task;
+
+        if(envDetector.isLinuxOS()){
+            task = () -> {
+                handleHTTPReq(merchantId, mobile, ctype);
+            };
+        }else{
+            task = () -> {
+                mockHTTPReq(merchantId, mobile, ctype);
+            };
+        }
 
         this.es.submit(task);
     }

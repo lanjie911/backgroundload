@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juhex.sms.bean.*;
 import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.dao.SMSSendDAO;
+import com.juhex.sms.mocker.DevEnvSMSSenderMocker;
 import com.juhex.sms.util.SMSClient;
 import com.juhex.sms.util.SMSRespPackageParser;
 import org.slf4j.Logger;
@@ -12,9 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,9 +34,10 @@ public class BackgroundSMSSender {
     @Autowired
     private EnvDetector envDetector;
 
-    private Logger logger;
+    @Autowired
+    private DevEnvSMSSenderMocker devEnvSMSSenderMocker;
 
-    private ObjectMapper om = new ObjectMapper();
+    private Logger logger;
 
     @PostConstruct
     public void init() {
@@ -47,75 +46,20 @@ public class BackgroundSMSSender {
         logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     }
 
-    private String mockSMSResp(String mobile){
-
-        SMSResp resp = new SMSResp();
-        resp.setStatus(0);
-        resp.setBalance(9999);
-
-        List<SMSPackage> packages = new LinkedList<>();
-        SMSPackage pack = new SMSPackage();
-        pack.setMid(String.valueOf(System.currentTimeMillis()));
-        pack.setMobile(mobile);
-        pack.setResult(0);
-        pack.setStat("0");
-        packages.add(pack);
-        resp.setList(packages);
-
-        StringWriter sw = new StringWriter();
-        try {
-            om.writeValue(sw,resp);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return sw.toString();
-    }
-
-    private String mockSMSResp(String[] phones){
-
-        SMSResp resp = new SMSResp();
-        resp.setStatus(0);
-        resp.setBalance(9999);
-
-        List<SMSPackage> packages = new LinkedList<>();
-
-        for(String content:phones){
-            SMSPackage pack = new SMSPackage();
-            String prefix = String.valueOf(System.currentTimeMillis());
-            String postfix = String.valueOf(Math.round(Math.random()* 100));
-            pack.setMid(prefix.concat(postfix));
-
-            String[] parts = content.split("#");
-            String mobile = parts[0];
-
-            pack.setMobile(mobile);
-            pack.setResult(0);
-            pack.setStat("0");
-            packages.add(pack);
-        }
-        resp.setList(packages);
-
-        StringWriter sw = new StringWriter();
-        try {
-            om.writeValue(sw,resp);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return sw.toString();
-    }
 
     public void submitSingleJob(final SMSJob job) {
 
         Runnable run = () -> {
             String result;
-            if(envDetector.isLinuxOS()){
+            String logTitle;
+            if (envDetector.isLinuxOS()) {
                 result = smsClient.sendSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getMobile(), job.getContent(), job.getExtno(), job.getRt());
-            }else{
-                result = this.mockSMSResp(job.getMobile());
+                logTitle = "SMS-RESULT";
+            } else {
+                result = devEnvSMSSenderMocker.mockSMSResp(job.getMobile());
+                logTitle = "SMS-MOCK-RESULT";
             }
-            logger.info("[SMS-RESULT] : {}", result);
+            logger.info("[{}] : {}", logTitle, result);
             if (!"ERROR".equals(result)) {
                 // 发送成功入库
                 SMSResp resp = smsRespPackageParser.parseSMSResultText(result);
@@ -136,14 +80,17 @@ public class BackgroundSMSSender {
         Runnable run = () -> {
             try {
                 String result;
-                if(envDetector.isLinuxOS()){
+                String logTitle;
+                if (envDetector.isLinuxOS()) {
                     result = smsClient.sendP2PSms(job.getUrl(), job.getAccount(), job.getPassword(), job.getContent(), job.getExtno(), job.getRt());
-                }else{
+                    logTitle = "SMS-P2P-RESULT";
+                } else {
                     String[] bds = job.getContent().split("\r");
-                    result = this.mockSMSResp(bds);
+                    result = devEnvSMSSenderMocker.mockSMSResp(bds);
+                    logTitle = "P2P-MOCK-RESULT";
                 }
 
-                logger.info("[SMS-P2P-RESULT] : {}", result);
+                logger.info("[{}] : {}", logTitle, result);
                 if (!"ERROR".equals(result)) {
                     SMSResp resp = smsRespPackageParser.parseSMSResultText(result);
                     List<SMSPackage> packages = resp.getList();

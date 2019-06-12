@@ -2,8 +2,10 @@ package com.juhex.sms.scheduler;
 
 import com.juhex.sms.bean.SMSPackage;
 import com.juhex.sms.bean.SMSResp;
+import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.config.SMSConfig;
 import com.juhex.sms.dao.SMSSendDAO;
+import com.juhex.sms.mocker.DevEnvSMSSenderMocker;
 import com.juhex.sms.util.SMSClient;
 import com.juhex.sms.util.SMSRespPackageParser;
 import org.slf4j.Logger;
@@ -34,6 +36,12 @@ public class BackgroundMarketingStateLoop {
     @Autowired
     private SMSConfig smsConfig;
 
+    @Autowired
+    private EnvDetector envDetector;
+
+    @Autowired
+    private DevEnvSMSSenderMocker devEnvSMSSenderMocker;
+
     private Logger logger;
 
     private Runnable job;
@@ -48,9 +56,16 @@ public class BackgroundMarketingStateLoop {
         String password = smsConfig.get("market.password");
 
         job = () -> {
-
-            String result = smsClient.queryReport(url, account, password, "json");
-            logger.info("[MARKET-REPORT] : {}", result);
+            String result;
+            String logTitle;
+            if(envDetector.isLinuxOS()){
+                result = smsClient.queryReport(url, account, password, "json");
+                logTitle = "MARKET-REPORT";
+            }else{
+                result = devEnvSMSSenderMocker.mockP2PReport();
+                logTitle = "MARKET-MOCK-REPORT";
+            }
+            logger.info("[{}] : {}", logTitle, result);
             try {
                 if (!"ERROR".equals(result)) {
                     // 发送成功入库
