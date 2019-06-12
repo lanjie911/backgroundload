@@ -1,6 +1,5 @@
 package com.juhex.sms.scheduler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juhex.sms.bean.*;
 import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.dao.SMSSendDAO;
