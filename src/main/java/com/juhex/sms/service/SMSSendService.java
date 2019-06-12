@@ -1,6 +1,7 @@
 package com.juhex.sms.service;
 
 import com.juhex.sms.bean.*;
+import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.config.SMSConfig;
 import com.juhex.sms.dao.MerchantDAO;
 import com.juhex.sms.dao.SMSSendDAO;
@@ -31,9 +32,18 @@ public class SMSSendService {
     @Autowired
     private SMSConfig smsConfig;
 
+    @Autowired
+    private EnvDetector envDetector;
+
     @PostConstruct
     public void init(){
 
+    }
+
+    public boolean isSMSMatchedShortLink(String phone, String shortURL){
+        String whole_url = envDetector.getAccessURL("JKD","t",shortURL);
+        Integer t = smsSendDAO.qryShortLinkByPhoneURL(phone,whole_url);
+        return t > 0;
     }
 
     public boolean isSMSCouldBeDelivered(String phone, Merchant merchant) {
@@ -53,7 +63,7 @@ public class SMSSendService {
         }
 
         // 已经发送总数超过5次了
-        if (smsSendDAO.qryPhoneSendTimes(phone, merchant.getMerchantId()) > SMS_SEND_TIMES) {
+        if (smsSendDAO.qryPhoneSendTimes(phone, merchant.getMerchantId()) >= SMS_SEND_TIMES) {
             return false;
         }
 

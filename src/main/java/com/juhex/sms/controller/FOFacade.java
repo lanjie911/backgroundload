@@ -46,7 +46,7 @@ public class FOFacade {
 
     // 发送注册短信
     @RequestMapping(method = {RequestMethod.GET}, path = {"/sendSMS"})
-    public String sendSMS(@RequestParam(name = "q") String phone,@RequestParam(name = "keycode") String key){
+    public String sendSMS(@RequestParam(name = "q") String phone,@RequestParam(name = "keycode") String key, @RequestParam(name="surl") String shortURL){
         logger.info("Sending verify code , mobile is {}",phone);
 
         Map<String,String> resultMap = new HashMap<>();
@@ -65,6 +65,16 @@ public class FOFacade {
             logger.info("Before send SMS, can't find merchant!");
             resultMap.put("rs","ERR");
             resultMap.put("text","非法的发送请求");
+            return writer.generate(resultMap);
+        }
+
+        // 防止短信炸弹开始
+        // 手机号码要和短连接匹配
+        boolean isMatch = smsSendService.isSMSMatchedShortLink(phone,shortURL);
+        if(!isMatch){
+            logger.info("Before send SMS, phone can't match short URL!");
+            resultMap.put("rs","ERR");
+            resultMap.put("text","非法的手机号来源");
             return writer.generate(resultMap);
         }
 

@@ -96,7 +96,7 @@ function getcode() {
     var tmStamp = new Date().getTime();
 
     $.ajax({
-        url: "/sendSMS?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&tm="+tmStamp,
+        url: "/sendSMS?keycode=dc95766f1a32006175d40458a774dbd8&q="+Mobile+"&surl="+shorturl+"&tm="+tmStamp,
         dataType: "json",
         type: "GET",
         success: function(data){

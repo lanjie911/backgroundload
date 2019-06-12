@@ -27,8 +27,15 @@ public class SMSSendDAO {
     }
 
     public Integer qryPhoneSendTimes(String phone, Long merchantId) {
-        String sql = "SELECT COUNT(req_id) total FROM mt_vcode WHERE merchant_id=? and mobile=?";
+        String sql = "SELECT COUNT(pid) total FROM vcode_verify WHERE merchant_id=? and phone_number=?";
         Object[] paras = new Object[]{merchantId, phone};
+        Integer total = jdbcTemplate.queryForObject(sql, paras, Integer.TYPE);
+        return total;
+    }
+
+    public Integer qryShortLinkByPhoneURL(String phone, String url){
+        String sql = "SELECT COUNT(1) FROM short_link WHERE phone_number=? AND s_url_link=?";
+        Object[] paras = new Object[]{phone, url};
         Integer total = jdbcTemplate.queryForObject(sql, paras, Integer.TYPE);
         return total;
     }
