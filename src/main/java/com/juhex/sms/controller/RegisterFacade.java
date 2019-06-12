@@ -1,6 +1,7 @@
 package com.juhex.sms.controller;
 
 import com.juhex.sms.bean.Merchant;
+import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.scheduler.BackgroundJKDHttpSender;
 import com.juhex.sms.service.MerchantService;
 import com.juhex.sms.util.HttpJSONResponseWriter;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,25 +28,14 @@ public class RegisterFacade {
     @Autowired
     private BackgroundJKDHttpSender backgroundJKDHttpSender;
 
+    @Autowired
+    private EnvDetector envDetector;
+
     public RegisterFacade() {
         logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     }
 
-    private String domain = "loan.juhedx.com";
-    private String port = "";
-    private String protocol = "http";
-    private String WHOLE_URL;
     private HttpJSONResponseWriter<Map> writer = new HttpJSONResponseWriter<>();
-
-    @PostConstruct
-    public void init() {
-        String os = System.getProperty("os.name");
-        if (os.toLowerCase().contains("windows")) {
-            port = ":8080";
-            domain = "127.0.0.1";
-        }
-        WHOLE_URL = protocol + "://" + domain + port + "/jkd/index.html";
-    }
 
 
     @RequestMapping(method = {RequestMethod.GET}, path = {"/t/{shortURL}"})
@@ -54,7 +43,7 @@ public class RegisterFacade {
         logger.info("Register URL is {}", shortURL);
 
         // 验证短连接是否存在
-        String wholeURl = protocol + "://" + domain + "/t/" + shortURL;
+        String wholeURl = envDetector.getAccessURL("JKD","t", shortURL);
         logger.info("whole url is {}", wholeURl);
         boolean isExist = merchantService.isShortURLExist(1L, wholeURl);
         if (!isExist) {
@@ -67,7 +56,7 @@ public class RegisterFacade {
             return;
         }
 
-        String redirectURL = WHOLE_URL + "?q=" + shortURL;
+        String redirectURL = envDetector.getRedirectURL("JKD")+"/jkd/index.html" + "?q=" + shortURL;
         // 根据 URL 跳转到对应的商户注册页面
         logger.info("redirect to {}", redirectURL);
 
@@ -101,7 +90,7 @@ public class RegisterFacade {
         }
 
         // 删除短连接是否OK
-        String wholeURl = protocol + "://" + domain + "/t/" + shortURL;
+        String wholeURl = envDetector.getAccessURL("JKD","t", shortURL);
         logger.info("whole url is {}", wholeURl);
         isOK = merchantService.deleteShortURL(1L, mobile, wholeURl);
         if (!isOK) {

@@ -4,6 +4,7 @@ import com.juhex.sms.bean.ForbiddenDistrict;
 import com.juhex.sms.bean.PhoneDistrict;
 import com.juhex.sms.bean.SMSJob;
 import com.juhex.sms.bean.SMSTask;
+import com.juhex.sms.config.EnvDetector;
 import com.juhex.sms.config.SMSConfig;
 import com.juhex.sms.dao.MerchantDAO;
 import com.juhex.sms.dao.SMSSendDAO;
@@ -61,6 +62,9 @@ public class BackgroundBatchMarketingSender {
 
     @Autowired
     private SMSConfig smsConfig;
+
+    @Autowired
+    private EnvDetector envDetector;
 
     private Logger logger;
 
@@ -151,7 +155,7 @@ public class BackgroundBatchMarketingSender {
 
             String shortURL = shortLinkGenerator.zipURL(merchantId + "&" + taskId + "&" + phone);
             logger.info("【Background Send】 phone is {}, short URL is {}",phone,shortURL);
-            shortURL = "http://loan.juhedx.com/t/" + shortURL;
+            shortURL = envDetector.getAccessURL("JKD","t",shortURL);
             String message = template.replaceAll("\\{slink\\}", shortURL);
             logger.info("【Background Send】 phone is {}, whole message is {}",phone,message);
             sb.append(phone).append("#").append(message);
