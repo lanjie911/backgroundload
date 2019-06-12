@@ -4,7 +4,7 @@ import com.juhex.sms.bean.*;
 import com.juhex.sms.config.SMSConfig;
 import com.juhex.sms.dao.MerchantDAO;
 import com.juhex.sms.dao.SMSSendDAO;
-import com.juhex.sms.scheduler.BackgroudSMSSender;
+import com.juhex.sms.scheduler.BackgroundSMSSender;
 import com.juhex.sms.util.VerifyCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class SMSSendService {
     private VerifyCodeGenerator verifyCodeGenerator;
 
     @Autowired
-    private BackgroudSMSSender backgroudSMSSender;
+    private BackgroundSMSSender backgroudSMSSender;
 
     private final Integer SMS_SEND_TIMES = 5;
 

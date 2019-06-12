@@ -25,6 +25,5 @@ public class BossFacade {
     public String sayHi(@RequestParam(name = "gr") String greeting) {
         logger.info("IN BossFacade demon bean is {}",demonBean.getCalc().longValue());
         return "{\"rs\":\"OK\"}";
-
     }
 }

@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class BackgroudMarketingStateLooper {
+public class BackgroundMarketingStateLoop {
 
     private ScheduledExecutorService senderExecutor;
 
@@ -38,7 +38,7 @@ public class BackgroudMarketingStateLooper {
 
     private Runnable job;
 
-    public BackgroudMarketingStateLooper() {
+    public BackgroundMarketingStateLoop() {
 
     }
 

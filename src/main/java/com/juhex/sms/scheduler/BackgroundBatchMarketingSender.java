@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -58,7 +57,7 @@ public class BackgroundBatchMarketingSender {
     private ShortLinkGenerator shortLinkGenerator;
 
     @Autowired
-    private BackgroudSMSSender backgroudSMSSender;
+    private BackgroundSMSSender backgroundSMSSender;
 
     @Autowired
     private SMSConfig smsConfig;
@@ -87,17 +86,22 @@ public class BackgroundBatchMarketingSender {
                 String filePath = task.getFilePath();
                 logger.info("[SMS-MARKETING] file path is {}", filePath);
                 List<String> phoneList = this.getPhoneListFromFile(filePath);
-                logger.info("[SMS-MARKETING] phone list size is {}", phoneList.size());
+                logger.info("[SMS-MARKETING] phone list size is {}", phoneList == null?0:phoneList.size());
                 String template = merchantDAO.qryTemplate(task.getMerchantId(), 2);
                 logger.info("[SMS-MARKETING] phone template is {}", template);
+
+                if(phoneList == null){
+                    return;
+                }
+
                 List<String> sendList = filterPhoneList(phoneList, task);
                 logger.info("[SMS-MARKETING] after filter size is {}", sendList.size());
                 //拆分发送
                 int lastPosition = sendList.size();
                 int begin = 0;
                 int end = 101;
-                String content = "";
-                List<String> tempList = null;
+                String content;
+                List<String> tempList;
                 while(end < lastPosition){
                     logger.info("[SMS-MARKETING] sending marketing from {} to {}", begin, end-1);
                     tempList = sendList.subList(begin,end);
@@ -133,7 +137,7 @@ public class BackgroundBatchMarketingSender {
         job.setRt("json");
         job.setContent(content);
         job.setMerchantId(merchantId);
-        backgroudSMSSender.sumbitP2PJob(job);
+        backgroundSMSSender.submitP2PJob(job);
     }
 
     private String constructMarketingSMS(String template, List<String> phoneList, SMSTask task) {
@@ -150,7 +154,7 @@ public class BackgroundBatchMarketingSender {
             shortURL = "http://loan.juhedx.com/t/" + shortURL;
             String message = template.replaceAll("\\{slink\\}", shortURL);
             logger.info("【Background Send】 phone is {}, whole message is {}",phone,message);
-            sb.append(phone + "#" + message);
+            sb.append(phone).append("#").append(message);
             sb.append("\r");
 
             smsTaskDAO.insertShortLink(taskId, merchantId, phone, shortURL);
@@ -232,7 +236,7 @@ public class BackgroundBatchMarketingSender {
     private List<String> getPhoneListFromFile(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 
-            String line = null;
+            String line;
             List<String> list = new LinkedList<>();
             while ((line = br.readLine()) != null) {
                 if ("".equals(line) || line.trim().length() == 0) {
@@ -241,9 +245,6 @@ public class BackgroundBatchMarketingSender {
                 list.add(line);
             }
             return list;
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

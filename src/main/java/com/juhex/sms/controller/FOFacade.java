@@ -21,9 +21,6 @@ import java.util.Map;
 @RestController
 public class FOFacade {
 
-    //@Autowired
-    //private CommonService service;
-
     @Autowired
     private DemonBean demonBean;
 
@@ -47,21 +44,6 @@ public class FOFacade {
         logger.info("Rest controller initiated...");
     }
 
-    @RequestMapping(method = {RequestMethod.GET}, path = {"/echo"})
-    public String sayHi(@RequestParam(name = "greeting") String greeting) {
-        logger.info("enter FO greeting...");
-        //service.doService();
-        //service.doJDBCDemo();
-
-        demonBean.increase();
-        logger.info("demon bean increased : {}",demonBean.getCalc().longValue());
-
-        PhoneDistrict pd = phoneDistrictUtil.fetchPhoneDistrictByBaiduAPI("18910050231");
-        logger.info("Phone district province is : {}, city is : {}, type is {}",pd.getProv(),pd.getCity(),pd.getType());
-
-        return "hi ".concat(greeting);
-    }
-
     // 发送注册短信
     @RequestMapping(method = {RequestMethod.GET}, path = {"/sendSMS"})
     public String sendSMS(@RequestParam(name = "q") String phone,@RequestParam(name = "keycode") String key){
@@ -77,7 +59,7 @@ public class FOFacade {
             return writer.generate(resultMap);
         }
 
-        // 通过keycode找到商户才给发
+        // 通过key code找到商户才给发
         Merchant m = merchantService.getMerchantByKeycode(key);
         if(m == null){
             logger.info("Before send SMS, can't find merchant!");
@@ -105,7 +87,5 @@ public class FOFacade {
         resultMap.put("rs","OK");
         resultMap.put("text","发送验证码成功");
         return writer.generate(resultMap);
-
-
     }
 }
