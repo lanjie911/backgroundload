@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,9 +96,10 @@ public class BackgroundSMSSender {
                 if (!"ERROR".equals(result)) {
                     SMSResp resp = smsRespPackageParser.parseSMSResultText(result);
                     List<SMSPackage> packages = resp.getList();
+                    String[] contents = job.getContent().split("\r");
                     for (SMSPackage pack : packages) {
                         Long merchantId = job.getMerchantId();
-                        String msg = "*BATCH BINARY CONTENT*";
+                        String msg = extractContentFromEncodeURL(pack.getMobile(),contents);
                         smsSendDAO.insertMTCommand(merchantId, msg, resp.getStatus(), pack.getMobile(), pack.getMid(), pack.getResult());
                     }
                 }
@@ -104,6 +108,21 @@ public class BackgroundSMSSender {
             }
         };
         senderExecutor.submit(run);
+    }
+
+    private String extractContentFromEncodeURL(String mobile, String[] encodeContent){
+        for(String content:encodeContent){
+            if(content.startsWith(mobile)){
+                String decodeContent = "";
+                try {
+                    decodeContent = URLDecoder.decode(content.split("#")[1],"UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return decodeContent;
+            }
+        }
+        return "";
     }
 
 }
